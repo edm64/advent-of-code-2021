@@ -4,7 +4,7 @@ from collections import defaultdict as ddict
 # I liked the solution I wrote that counts diagonals, then reread the instructions. I don't have the heart to delete that part, so it's staying in with a toggle.
 includeDiagonals = False
 
-debug = True
+debug = False
 
 def dprint(s):
 	if debug:
@@ -64,15 +64,30 @@ with open("input04.txt",'r') as inputte:
 		cards.append(Card([inputte.readline().strip() for c in "BINGO"]))
 
 k=0
+bingos =[]
 for number in sequence:
 	k+=1
+	done=[]
+
+	# call out the number, mark all cards that have it
 	dprint(f">>{number}<<  ({k})")
 	for card in cards:
 		card.call(number)
-	winners = [c.score() for c in cards if c.bingo()]
-	if winners:
-		dprint(winners)
+		if card.bingo():
+			done.append(card)
+
+	# score any complete cards, then remove them from the game
+	dprint(f"BINGO! (x{len(done)})" if done else "")
+	for card in done:
+		bingos.append(card.score()*number)
+		cards.remove(card)
+
+	# all cards have gotten bingo, stop calling
+	dprint(f"{len(cards)} left\n")
+	if not cards:
 		break
 
-# part 1 solution
-print(max(winners)*number)
+# part 1 solution, first to bingo
+print(bingos[0])
+# part 2 solution, last to bingo
+print(bingos[-1])
